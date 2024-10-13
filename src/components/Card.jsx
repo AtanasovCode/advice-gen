@@ -3,7 +3,10 @@ import dice from '../assets/icon-dice.svg';
 
 const Card = ({
     fetchAdvice,
-    id, advice,
+    loading,
+    error,
+    id, 
+    advice,
 }) => {
     return (
         <div className="
@@ -15,18 +18,20 @@ const Card = ({
             </div>
 
             <div className="text-center text-2xl mb-6">
-                {`"${advice}"`}
+                {
+                    loading ? "Loading..." : error ? `${error.message}` : `"${advice}"`
+                }
             </div>
 
             <div className="w-full flex items-center justify-center">
-                <img src={pauseIcon} alt="devider icon" />
+                <img src={pauseIcon} alt="pattern devider icon" />
             </div>
 
             <div className="
                 bg-neonGreen w-16 h-16 flex items-center justify-center rounded-full
                 absolute -bottom-7 left-50 -translate-x-50 cursor-pointer
                 hover:rotate-180 transition-all duration-500"
-                onClick={() => fetchAdvice()}
+                onClick={() => !loading && fetchAdvice()}
             >
                 <img src={dice} alt="dice icon used to randomize advice" />
             </div>

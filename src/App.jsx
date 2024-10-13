@@ -3,35 +3,54 @@ import Card from "./components/Card";
 
 const App = () => {
   const [advice, setAdvice] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [id, setId] = useState("");
 
-  const fetchAdvice = () => {
+  const fetchAdvice = async () => {
     const url = 'https://api.adviceslip.com/advice?=' + Math.random(); // Appending a random query parameter
-    fetch(url)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log(data.slip);
-        setAdvice(data.slip.advice);
-        setId(data.slip.id);
-      })
-      .catch(error => {
-        console.error('There was a problem fetching the advice:', error);
-      });
-  };
 
+    try {
+      setLoading(true);
+      console.log("Fetching Advice...")
+
+      const data = await fetch(url);
+      const advice = await data.json();
+
+      return advice;
+    } catch (err) {
+      console.error(err)
+      setError(err);
+    } finally {
+      setLoading(false);
+      console.log("Finished Fetching Advice");
+    }
+  }
+
+  const getAdvice = async () => {
+    const advice = await fetchAdvice();
+
+    if(advice && advice.slip) {
+      setAdvice(advice.slip.advice);
+      setId(advice.slip.id);
+    } else {
+      setError("Erorr fetching advice");
+    }
+  }
 
   useEffect(() => {
-    fetchAdvice(); // Fetch advice on initial page load
-  }, []); // Empty dependency array to ensure this effect runs only once on mount
+    getAdvice();
+  }, [])
 
   return (
     <div className="w-screen min-h-screen flex items-center justify-center bg-darkBlue font-manrope font-extrabold">
-      <Card advice={advice} id={id} fetchAdvice={fetchAdvice} />
+      <Card 
+        advice={advice} 
+        id={id} 
+        fetchAdvice={getAdvice} 
+        loading={loading}
+        error={error}
+      />
     </div>
   );
 }
